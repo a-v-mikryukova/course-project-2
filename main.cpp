@@ -52,7 +52,7 @@ private:
     vector<vector<pair<int, double>>> edges;
     int width, height;
 
-    bool isPointSafe(const Point& p) const {
+    bool is_point_safe(const Point& p) const {
         int x_min = static_cast<int>(floor(p.x - OBSTACLE_MARGIN));
         int x_max = static_cast<int>(ceil(p.x + OBSTACLE_MARGIN));
         int y_min = static_cast<int>(floor(p.y - OBSTACLE_MARGIN));
@@ -83,13 +83,13 @@ private:
         return is_save;
     }
 
-    bool isPathSafe(const Point& a, const Point& b) const {
+    bool is_path_safe(const Point& a, const Point& b) const {
         const int steps = 100;
         for (int i = 0; i <= steps; ++i) {
             double t = static_cast<double>(i)/steps;
             Point p(a.x + t*(b.x - a.x),
                     a.y + t*(b.y - a.y));
-            if (!isPointSafe(p)) return false;
+            if (!is_point_safe(p)) return false;
         }
         return true;
     }
@@ -127,7 +127,7 @@ public:
                 int dy = abs(node_i.y - node_j.y);
                 if (dx <= 1 && dy <= 1) {
                     double dist =  node_i.center.distance(node_j.center);
-                    if (isPathSafe(node_i.center, node_j.center)) {
+                    if (is_path_safe(node_i.center, node_j.center)) {
                         edges[i].emplace_back(j, dist);
                         edges[j].emplace_back(i, dist);
                     }
@@ -169,7 +169,7 @@ private:
     vector<vector<bool>> grid;
     int width, height;
 
-    bool isPointSafe(const Point& p) const {
+    bool is_point_safe(const Point& p) const {
         int x_min = static_cast<int>(floor(p.x - OBSTACLE_MARGIN));
         int x_max = static_cast<int>(ceil(p.x + OBSTACLE_MARGIN));
         int y_min = static_cast<int>(floor(p.y - OBSTACLE_MARGIN));
@@ -201,22 +201,22 @@ private:
     }
 
 
-    bool isPathSafe(const Point& a, const Point& b) const {
+    bool is_path_safe(const Point& a, const Point& b) const {
         const int steps = 100;
         for (int i = 0; i <= steps; ++i) {
             double t = static_cast<double>(i)/steps;
             Point p(a.x + t*(b.x - a.x),
                     a.y + t*(b.y - a.y));
-            if (!isPointSafe(p)) return false;
+            if (!is_point_safe(p)) return false;
         }
         return true;
     }
 
 
 public:
-    PRM(const string& mapFile, const vector<Point>& starts,
-        const vector<Point>& goals, int numNodes, double connectionRadius) {
-        ifstream file(mapFile);
+    PRM(const string& map_file, const vector<Point>& starts,
+        const vector<Point>& goals, int num_nodes, double connection_radius) {
+        ifstream file(map_file);
         string line;
         while (getline(file, line)) {
             grid.push_back(vector<bool>(line.size()));
@@ -232,26 +232,26 @@ public:
         uniform_real_distribution<double> distY(0 + OBSTACLE_MARGIN, height - OBSTACLE_MARGIN);
 
         for (const auto& p : starts) {
-            if (!isPointSafe(p))
+            if (!is_point_safe(p))
                 throw runtime_error("Start position is in collision!");
             nodes.push_back(p);
         }
         for (const auto& p : goals) {
-            if (!isPointSafe(p))
+            if (!is_point_safe(p))
                 throw runtime_error("Goal position is in collision!");
             nodes.push_back(p);
         }
 
-        while (nodes.size() < numNodes) {
+        while (nodes.size() < num_nodes) {
             Point p(distX(gen), distY(gen));
             int x = static_cast<int>(p.x), y = static_cast<int>(p.y);
-            if (isPointSafe(p)) nodes.push_back(p);
+            if (is_point_safe(p)) nodes.push_back(p);
         }
         edges.resize(nodes.size());
         for (size_t i = 0; i < nodes.size(); ++i) {
             for (size_t j = i+1; j < nodes.size(); ++j) {
-                if (nodes[i].distance(nodes[j]) <= connectionRadius &&
-                        isPathSafe(nodes[i], nodes[j])) {
+                if (nodes[i].distance(nodes[j]) <= connection_radius &&
+                        is_path_safe(nodes[i], nodes[j])) {
                     double dist = nodes[i].distance(nodes[j]);
                     edges[i].emplace_back(j, dist);
                     edges[j].emplace_back(i, dist);
@@ -399,7 +399,7 @@ public:
     }
 };
 
-double distanceToSegment(const Point& p, const Point& a, const Point& b) {
+double distance_to_segment(const Point& p, const Point& a, const Point& b) {
     const double l2 = a.distance(b) * a.distance(b);
     if (l2 == 0.0) return p.distance(a);
     const double t = max(0.0, min(1.0, ((p.x - a.x)*(b.x - a.x) + (p.y - a.y)*(b.y - a.y)) / l2));
@@ -408,13 +408,13 @@ double distanceToSegment(const Point& p, const Point& a, const Point& b) {
 }
 
 
-double minDistance(const vector<Point>& path, const Point& target) {
+double min_distance(const vector<Point>& path, const Point& target) {
     if (path.empty()) return numeric_limits<double>::infinity();
 
     double min_dist = numeric_limits<double>::max();
 
     for (size_t i = 1; i < path.size(); ++i) {
-        const double dist = distanceToSegment(target, path[i-1], path[i]);
+        const double dist = distance_to_segment(target, path[i-1], path[i]);
         if (dist < min_dist) {
             min_dist = dist;
         }
@@ -452,12 +452,12 @@ vector<int> prioritize_robots(
         for (int j = 0; j < N; ++j) {
             if (i == j) continue;
 
-            double dist_start = minDistance(path, starts[j]);
+            double dist_start = min_distance(path, starts[j]);
             if (dist_start < COLLISION_DISTANCE) {
                 adj[j].push_back(i);
             }
 
-            double dist_goal = minDistance(path, goals[assignment[j]]);
+            double dist_goal = min_distance(path, goals[assignment[j]]);
             if (dist_goal < COLLISION_DISTANCE) {
                 adj[i].push_back(j);
             }
@@ -519,7 +519,7 @@ struct PathConflict {
 };
 
 
-optional<SegmentIntersection> findSegmentIntersection(const Point& a1, const Point& a2, const Point& b1, const Point& b2) {
+optional<SegmentIntersection> find_segment_intersection(const Point& a1, const Point& a2, const Point& b1, const Point& b2) {
     const double eps = 1e-9;
     const double dx_a = a2.x - a1.x;
     const double dy_a = a2.y - a1.y;
@@ -544,7 +544,7 @@ optional<SegmentIntersection> findSegmentIntersection(const Point& a1, const Poi
 }
 
 
-PathConflict findPathConflicts(
+PathConflict find_path_conflicts(
         const vector<Point>& path_a,
         const vector<double>& time_a,
         const vector<Point>& path_b,
@@ -560,7 +560,7 @@ PathConflict findPathConflicts(
         const Point& b1 = path_b[i-1];
         const Point& b2 = path_b[i];
 
-        double dist = distanceToSegment(goal_a, b1, b2);
+        double dist = distance_to_segment(goal_a, b1, b2);
         double t = clamp(
                 ((goal_a.x - b1.x)*(b2.x - b1.x) + (goal_a.y - b1.y)*(b2.y - b1.y)) /
                 (pow(b2.x - b1.x, 2) + pow(b2.y - b1.y, 2)),
@@ -597,7 +597,7 @@ PathConflict findPathConflicts(
             const double b_t1 = time_b[j-1];
             const double b_t2 = time_b[j];
 
-            auto intersection = findSegmentIntersection(a1, a2, b1, b2);
+            auto intersection = find_segment_intersection(a1, a2, b1, b2);
             if (!intersection) continue;
 
             double a_time = a_t1 + intersection->t * (a_t2 - a_t1);
@@ -617,13 +617,13 @@ PathConflict findPathConflicts(
 
 
 
-vector<TimedPath> schedulePaths(const vector<Point>& starts, const vector<Point>& goals,
-                                const vector<int>& assignment, const vector<int>& priorityOrder,
+vector<TimedPath> schedule_paths(const vector<Point>& starts, const vector<Point>& goals,
+                                const vector<int>& assignment, const vector<int>& priority_order,
                                 const Graph& graph, double speed = 1.0) {
-    vector<TimedPath> paths(priorityOrder.size());
+    vector<TimedPath> paths(priority_order.size());
     vector<TrajectoryInfo> scheduled;
 
-    for (int robot : priorityOrder) {
+    for (int robot : priority_order) {
         TimedPath& path = paths[robot];
         int start_node = graph.find_nearest_node(starts[robot]);
         int goal_node = graph.find_nearest_node(goals[assignment[robot]]);
@@ -644,7 +644,7 @@ vector<TimedPath> schedulePaths(const vector<Point>& starts, const vector<Point>
 
         double delay = 0.0;
         for (const auto& other : scheduled) {
-            auto conflicts = findPathConflicts(path.points, path.timestamps, other.path, other.timestamps);
+            auto conflicts = find_path_conflicts(path.points, path.timestamps, other.path, other.timestamps);
             delay = max(delay, conflicts.required_delay);
         }
 
@@ -748,7 +748,7 @@ void process_test(const string& map_path,
         hungarian.solve(transformed, assignment);
 
         auto priority_order = prioritize_robots(cost_matrix, assignment, starts, goals, graph);
-        auto timed_paths = schedulePaths(starts, goals, assignment, priority_order, graph);
+        auto timed_paths = schedule_paths(starts, goals, assignment, priority_order, graph);
 
         save_paths(timed_paths, "/mapf-2/paths.txt");
 
