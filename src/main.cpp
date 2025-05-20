@@ -10,8 +10,8 @@
 
 using namespace std;
 
-const string RESULT_DIR = "/home/alena/mapf-2/results";
-const string MAP_PATH = "/home/alena/mapf-2/tests/room-64-64-16/map.txt";
+const string RESULT_DIR = "results";
+const string MAP_PATH = "../tests/room-64-64-16/map.txt";
 
 
 void save_paths(const vector<TimedPath>& paths, const string& filename) {
@@ -133,7 +133,7 @@ void process_test(const string& map_path,
 
 
 int main() {
-    const string test_dir = "/home/alena/mapf-2/tests/room-64-64-16/10_agents";
+    const string test_dir = "../tests/room-64-64-16/10_agents";
     auto test_files = get_test_files(test_dir);
 
     double total_sum = 0.0;
