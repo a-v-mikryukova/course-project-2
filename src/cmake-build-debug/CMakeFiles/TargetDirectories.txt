@@ -1,3 +1,0 @@
-/home/alena/mapf-good/cmake-build-debug/CMakeFiles/mapf_good.dir
-/home/alena/mapf-good/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/alena/mapf-good/cmake-build-debug/CMakeFiles/rebuild_cache.dir
